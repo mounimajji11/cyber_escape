@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Cyber Escape — The Digital Maze</title>
+    <meta name="description" content="An immersive futuristic cyber-world maze adventure. Break the simulation, outsmart patrol sentinels, collect encrypted keys, and escape the grid." />
+    <meta property="og:title" content="Cyber Escape — The Digital Maze" />
+    <meta property="og:description" content="An immersive futuristic cyber-world maze adventure. Break the simulation, outsmart patrol sentinels, collect encrypted keys, and escape the grid." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <!-- Full-Screen Cinematic Cyber World Background Canvas -->
+    <canvas id="cinema-canvas" aria-hidden="true"></canvas>
+
+    <!-- Holographic Scanline Overlay -->
+    <div class="scanlines"></div>
+
+    <!-- Main Game Container -->
+    <main id="game-container">
+      <!-- Modern Cyber Translucent HUD Header (Gameplay Only) -->
+      <header id="hud" class="hidden">
+        <div class="hud-group">
+          <div class="hud-item">
+            <span class="hud-label">Sector Mission</span>
+            <div class="hud-sector-title">
+              <span id="hud-level" class="sector-num">01 / 10</span>
+              <span id="hud-theme-name" class="theme-pill">Crystal Blue</span>
+            </div>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Integrity</span>
+            <div id="hud-lives" class="lives-indicator" aria-label="3 Lives remaining"></div>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Encrypted Keys</span>
+            <span id="hud-keys" class="hud-value">0 / 0</span>
+          </div>
+        </div>
+
+        <div class="hud-group">
+          <div id="active-powerups"></div>
+        </div>
+
+        <div class="hud-group">
+          <div class="hud-item">
+            <span class="hud-label">Time Remaining</span>
+            <span id="hud-time" class="timer-pill normal">90s</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Score</span>
+            <span id="hud-score" class="hud-value">0</span>
+          </div>
+          <div class="hud-controls">
+            <button id="btn-pause" class="hud-btn" title="Pause game (P / Esc)">⏸️ PAUSE</button>
+            <button id="btn-restart" class="hud-btn" title="Restart sector (R)">🔄 RESET</button>
+            <button id="btn-sound" class="hud-btn" title="Toggle audio">🔊 SOUND</button>
+            <button id="btn-help" class="hud-btn" title="Instructions">ℹ️ INFO</button>
+          </div>
+        </div>
+      </header>
+
+      <!-- MENU LAYER: Completely separate from Gameplay Arena -->
+      <div id="menu-container">
+        <!-- 1. CINEMATIC START SCREEN / MAIN MENU - PERFECTLY CENTERED -->
+        <section id="screen-welcome" class="menu-screen-view">
+          <div class="hero-brand-card">
+            <div class="descriptor-badge">A DIGITAL MAZE ADVENTURE</div>
+            <h1 class="main-title">
+              <span class="title-word cyber">CYBER</span>
+              <span class="title-word escape">ESCAPE</span>
+            </h1>
+            <p class="tagline">BREAK THE SYSTEM. FIND YOUR WAY OUT.</p>
+            <div class="title-divider"></div>
+
+            <div class="welcome-menu-actions">
+              <button id="btn-start-game" class="menu-btn primary-start">
+                <span class="btn-glow-pulse"></span>
+                <span class="btn-text">▶ START ESCAPE</span>
+              </button>
+              
+              <div class="menu-btn-row">
+                <button id="btn-open-level-select" class="menu-btn secondary">
+                  <span>⊞ LEVEL SELECT</span>
+                </button>
+                <button id="btn-how-to-play" class="menu-btn secondary">
+                  <span>📖 HOW TO PLAY</span>
+                </button>
+              </div>
+
+              <div class="menu-btn-row">
+                <button id="btn-open-settings" class="menu-btn secondary">
+                  <span>⚙️ SETTINGS</span>
+                </button>
+                <button id="btn-menu-sound" class="menu-btn secondary">
+                  <span id="menu-sound-label">🔊 SOUND: ON</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="hero-stats-bar">
+              <div class="stat-pill">
+                <span class="stat-lbl">BEST SCORE</span>
+                <span id="welcome-high-score" class="stat-num">0</span>
+              </div>
+              <div class="stat-divider"></div>
+              <div class="stat-pill">
+                <span class="stat-lbl">PROGRESSION</span>
+                <span id="welcome-max-sector" class="stat-num">Sector 01 / 10</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. LEVEL SELECT SCREEN -->
+        <section id="screen-level-select" class="menu-screen-view hidden">
+          <div class="panel-card" style="max-width: 640px;">
+            <h2 class="glitch-title">SECTOR MATRIX</h2>
+            <p class="subtitle">SELECT UNLOCKED SECTOR DESTINATION</p>
+
+            <div id="level-select-grid" class="level-select-container"></div>
+
+            <div class="btn-cluster" style="margin-top: 20px;">
+              <button id="btn-close-level-select" class="cyber-btn primary">RETURN TO MENU</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. INSTRUCTIONS / HOW TO PLAY -->
+        <section id="screen-instructions" class="menu-screen-view hidden">
+          <div class="panel-card" style="max-width: 660px;">
+            <h2 class="glitch-title">SYSTEM MANUAL</h2>
+            <p class="subtitle">SURVIVAL DIRECTIVES & FLIGHT CONTROLS</p>
+
+            <div class="instructions-grid">
+              <div class="instruction-card">
+                <h4>🦹 CYBER THIEF CONTROLS</h4>
+                <p>Steer your nimble cartoon thief (purple hoodie & sneakers) with <span class="key-badge">W</span> <span class="key-badge">A</span> <span class="key-badge">S</span> <span class="key-badge">D</span> or Arrow Keys. Press <span class="key-badge">M</span> to toggle the radar.</p>
+              </div>
+              <div class="instruction-card">
+                <h4>👮 CYBER POLICE & DRONES</h4>
+                <p>Evade patrolling Cyber Police Officers! If their scanning cone spots you, sirens wail and they give chase. Watch out for floating security drones.</p>
+              </div>
+              <div class="instruction-card">
+                <h4>🔑 ENCRYPTED KEYS</h4>
+                <p>Steal all sparkling data keys in the sector to disarm the high-voltage laser security gates blocking your escape route.</p>
+              </div>
+              <div class="instruction-card">
+                <h4>🌀 ESCAPE PORTAL & TECH</h4>
+                <p>Reach the unlocked quantum exit portal to win! Collect <span style="color:var(--cyber-cyan)">Shield (S)</span>, <span style="color:var(--cyber-gold)">Speed (B)</span>, and <span style="color:#70f3ff">Freeze (F)</span>.</p>
+              </div>
+            </div>
+
+            <div class="btn-cluster">
+              <button id="btn-close-instructions" class="cyber-btn primary">RETURN TO MENU</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. SETTINGS MODAL -->
+        <section id="screen-settings" class="menu-screen-view hidden">
+          <div class="panel-card" style="max-width: 540px;">
+            <h2 class="glitch-title">SYSTEM CONFIG</h2>
+            <p class="subtitle">AUDIO & SIMULATION PREFERENCES</p>
+
+            <div class="settings-list">
+              <div class="setting-row">
+                <div class="setting-info">
+                  <span class="setting-title">Audio Synthesizer</span>
+                  <span class="setting-desc">Procedural sci-fi chimes, alerts & SFX</span>
+                </div>
+                <button id="setting-toggle-sound" class="setting-toggle-btn active">ENABLED</button>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info">
+                  <span class="setting-title">Haptic Screen Shake</span>
+                  <span class="setting-desc">Impact trauma on sentinel collisions</span>
+                </div>
+                <button id="setting-toggle-shake" class="setting-toggle-btn active">ENABLED</button>
+              </div>
+
+              <div class="setting-row">
+                <div class="setting-info">
+                  <span class="setting-title">Holographic Particles</span>
+                  <span class="setting-desc">Atmospheric sparks, dust & digital rain</span>
+                </div>
+                <button id="setting-toggle-particles" class="setting-toggle-btn active">ENABLED</button>
+              </div>
+
+              <div class="setting-row danger-zone">
+                <div class="setting-info">
+                  <span class="setting-title">Reset System Memory</span>
+                  <span class="setting-desc">Clear unlocked sectors & high score record</span>
+                </div>
+                <button id="btn-reset-progress" class="setting-reset-btn">RESET DATA</button>
+              </div>
+            </div>
+
+            <div class="btn-cluster" style="margin-top: 18px;">
+              <button id="btn-close-settings" class="cyber-btn primary">SAVE & CLOSE</button>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- GAMEPLAY ARENA: Contains the canvas and in-game overlays (Completely hidden on menu states) -->
+      <section id="canvas-wrapper" class="hidden">
+        <canvas id="game-canvas"></canvas>
+        <div id="damage-flash"></div>
+
+        <!-- In-Game Notification Banner -->
+        <div id="game-alert-banner" class="game-alert hidden"></div>
+
+        <!-- Holographic Tactical Minimap Radar -->
+        <aside id="minimap-panel" class="minimap-panel" title="Tactical Radar (Press M to toggle)">
+          <div class="minimap-header">
+            <span class="minimap-title">RADAR MATRIX</span>
+            <button id="btn-toggle-minimap" class="minimap-toggle" aria-label="Toggle minimap">−</button>
+          </div>
+          <canvas id="minimap-canvas" width="130" height="130"></canvas>
+          <div class="minimap-footer">
+            <span id="minimap-keys-status" class="minimap-badge">KEYS: 0/0</span>
+          </div>
+        </aside>
+
+        <!-- OVERLAY: PAUSE SCREEN -->
+        <div id="screen-pause" class="overlay-screen hidden">
+          <div class="panel-card" style="max-width: 420px;">
+            <h2 class="glitch-title">SIMULATION PAUSED</h2>
+            <p class="subtitle">DATA STREAM FROZEN</p>
+            <div class="btn-cluster">
+              <button id="btn-resume" class="cyber-btn primary">RESUME STREAM</button>
+              <button id="btn-restart-modal" class="cyber-btn secondary">RESTART SECTOR</button>
+              <button id="btn-menu-from-pause" class="cyber-btn secondary">MAIN MENU</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- OVERLAY: LEVEL CLEARED SCREEN -->
+        <div id="screen-level-clear" class="overlay-screen hidden">
+          <div class="panel-card">
+            <h2 class="glitch-title" style="color: #00ff88; text-shadow: 0 0 20px rgba(0, 255, 136, 0.6);">SECTOR CLEARED!</h2>
+            <p class="subtitle">SECURITY FIREWALL BREACHED — SECTOR <span id="clear-lvl-num">1</span></p>
+
+            <div class="summary-box">
+              <div class="summary-item">
+                <div class="label">Time Remaining</div>
+                <div id="clear-time-left" class="val highlight">0s</div>
+              </div>
+              <div class="summary-item">
+                <div class="label">Integrity Bonus</div>
+                <div id="clear-lives-left" class="val">3</div>
+              </div>
+              <div class="summary-item" style="grid-column: span 2;">
+                <div class="label">Total Score</div>
+                <div id="clear-score-total" class="val highlight" style="font-size: 26px;">0</div>
+              </div>
+            </div>
+
+            <div id="next-sector-preview" class="mission-preview-box">
+              <div class="preview-details">
+                <span class="preview-sector">Next Sector Destination</span>
+                <span id="preview-sector-name" class="preview-name">Sector 02: Lavender Dreams</span>
+                <div id="preview-swatches" class="preview-swatches"></div>
+              </div>
+              <div id="preview-sector-time" class="preview-time">85s Limit</div>
+            </div>
+
+            <div class="btn-cluster">
+              <button id="btn-next-level" class="cyber-btn primary">PROCEED TO NEXT SECTOR ▶</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- OVERLAY: GAME OVER SCREEN -->
+        <div id="screen-game-over" class="overlay-screen hidden">
+          <div class="panel-card">
+            <h2 class="glitch-title" style="color: #ff0055; text-shadow: 0 0 20px rgba(255, 0, 85, 0.7);">SYSTEM BREACHED</h2>
+            <p id="game-over-reason" class="subtitle" style="color: #ff5577;">SECURITY LOCKDOWN</p>
+
+            <div class="summary-box">
+              <div class="summary-item">
+                <div class="label">Final Score</div>
+                <div id="over-final-score" class="val highlight">0</div>
+              </div>
+              <div class="summary-item">
+                <div class="label">High Score</div>
+                <div id="over-high-score" class="val">0</div>
+              </div>
+            </div>
+
+            <div id="new-record-tag" class="new-best-tag" style="display: none;">★ NEW HIGH SCORE RECORD ★</div>
+
+            <div class="btn-cluster">
+              <button id="btn-try-again" class="cyber-btn primary">RETRY SECTOR</button>
+              <button id="btn-menu-from-over" class="cyber-btn secondary">MAIN MENU</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- OVERLAY: VICTORY SCREEN -->
+        <div id="screen-victory" class="overlay-screen hidden">
+          <div class="panel-card">
+            <h2 class="glitch-title" style="color: #00f3ff; text-shadow: 0 0 25px rgba(0, 243, 255, 0.8);">MAINFRAME LIBERATED!</h2>
+            <p class="subtitle" style="color: #c084fc;">ALL 10 SECTORS CONQUERED</p>
+
+            <p style="color: #94a3b8; font-size: 14px; line-height: 1.6; margin-bottom: 12px;">
+              Operative, you escaped every quantum maze, bypassed sentinels, unlocked all laser security barriers, and emerged victorious into the open network!
+            </p>
+
+            <div class="summary-box">
+              <div class="summary-item">
+                <div class="label">Grand Score</div>
+                <div id="vic-final-score" class="val highlight" style="font-size: 26px;">0</div>
+              </div>
+              <div class="summary-item">
+                <div class="label">High Score Record</div>
+                <div id="vic-high-score" class="val">0</div>
+              </div>
+            </div>
+
+            <div class="btn-cluster">
+              <button id="btn-play-again-victory" class="cyber-btn primary">REPLAY CHALLENGE</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Bottom Virtual D-Pad for Mobile Devices (Only shown during gameplay on touch screens) -->
+      <footer id="mobile-controls" class="hidden" aria-label="Touch Navigation Controls">
+        <button id="dpad-up" class="dpad-btn" aria-label="Up">▲</button>
+        <button id="dpad-left" class="dpad-btn" aria-label="Left">◀</button>
+        <button id="dpad-down" class="dpad-btn" aria-label="Down">▼</button>
+        <button id="dpad-right" class="dpad-btn" aria-label="Right">▶</button>
+      </footer>
+    </main>
+
+    <!-- Game Engine & Cinematic Canvas Logic -->
+    <script type="module" src="./script.js"></script>
+  </body>
+</html>

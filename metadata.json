@@ -1,0 +1,6 @@
+{
+  "name": "Cyber Escape: The Digital Maze",
+  "description": "Futuristic 2D sci-fi maze runner where you collect energy keys, dodge patrol bots, activate power-ups, and escape the digital grid.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
